@@ -14,7 +14,6 @@ const permissionSchema = new Schema<IPermission>(
       type: String,
       required: [true, '权限编码不能为空'],
       trim: true,
-      uppercase: true,
       maxlength: [100, '权限编码最多100个字符'],
       unique: true,
     },
@@ -22,6 +21,21 @@ const permissionSchema = new Schema<IPermission>(
       type: String,
       default: '',
       maxlength: [200, '描述最多200个字符'],
+    },
+    type: {
+      type: String,
+      enum: ['menu', 'action', 'data', 'system'],
+      required: [true, '权限类型不能为空'],
+      default: 'action',
+    },
+    action: [{
+      type: String,
+      enum: ['view', 'create', 'edit', 'delete', 'export', 'import', 'audit', 'manage'],
+    }],
+    module: {
+      type: String,
+      enum: ['user', 'role', 'permission', 'menu', 'system'],
+      default: 'system',
     },
   },
   {

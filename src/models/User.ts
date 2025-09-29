@@ -30,8 +30,8 @@ const userSchema = new Schema<IUser>(
     },
     role: {
       type: String,
-      enum: Object.values(UserRole),
-      default: UserRole.USER,
+      required: [true, '用户角色不能为空'],
+      ref: 'Role',
     },
     avatar: {
       type: String,

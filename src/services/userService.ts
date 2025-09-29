@@ -179,7 +179,7 @@ export class UserService {
   static async createSuperAdmin(): Promise<IUser | null> {
     try {
       // 检查是否已存在超级管理员
-      const existingSuperAdmin = await User.findOne({ role: UserRole.SUPER_ADMIN });
+      const existingSuperAdmin = await User.findOne({ role: 'SUPER_ADMIN' });
       if (existingSuperAdmin) {
         logger.info('超级管理员已存在');
         return existingSuperAdmin;
@@ -190,7 +190,7 @@ export class UserService {
         username: 'admin',
         email: 'admin@admin.com',
         password: 'admin123456',
-        role: UserRole.SUPER_ADMIN,
+        role: 'SUPER_ADMIN',
       };
 
       const superAdmin = await this.createUser(superAdminData);

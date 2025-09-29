@@ -89,6 +89,9 @@ class App {
       AuthService.setRedisService(redisService);
       setRedisService(redisService);
       
+      // 初始化默认角色
+      await this.initializeDefaultRoles();
+      
       // 初始化超级管理员
       await this.initializeSuperAdmin();
       
@@ -96,6 +99,16 @@ class App {
     } catch (error) {
       logger.error('数据库初始化失败', error);
       process.exit(1);
+    }
+  }
+
+  private async initializeDefaultRoles(): Promise<void> {
+    try {
+      const { initDefaultRoles } = await import('./scripts/initRoles.js');
+      await initDefaultRoles();
+      logger.info('默认角色初始化完成');
+    } catch (error) {
+      logger.error('默认角色初始化失败', error);
     }
   }
 

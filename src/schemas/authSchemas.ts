@@ -62,16 +62,23 @@ export const createUserSchema = Joi.object({
       'any.required': '密码不能为空',
     }),
   role: Joi.string()
-    .valid(...Object.values(UserRole))
-    .default(UserRole.USER)
+    .min(1)
+    .required()
     .messages({
-      'any.only': '无效的用户角色',
+      'string.min': '角色不能为空',
+      'any.required': '角色不能为空',
     }),
   avatar: Joi.string()
-    .uri()
     .optional()
+    .allow('')
     .messages({
-      'string.uri': '头像必须是有效的URL',
+      'string.base': '头像必须是字符串',
+    }),
+  isActive: Joi.boolean()
+    .optional()
+    .default(true)
+    .messages({
+      'boolean.base': 'isActive必须是布尔值',
     }),
 });
 
@@ -100,17 +107,16 @@ export const updateUserSchema = Joi.object({
       'string.min': '密码至少6个字符',
     }),
   role: Joi.string()
-    .valid(...Object.values(UserRole))
+    .min(1)
     .optional()
     .messages({
-      'any.only': '无效的用户角色',
+      'string.min': '角色不能为空',
     }),
   avatar: Joi.string()
-    .uri()
     .optional()
     .allow('')
     .messages({
-      'string.uri': '头像必须是有效的URL',
+      'string.base': '头像必须是字符串',
     }),
   isActive: Joi.boolean()
     .optional()

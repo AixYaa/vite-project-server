@@ -7,7 +7,7 @@ export interface IUser extends Document {
   username: string;
   email: string;
   password: string;
-  role: UserRole;
+  role: string; // 角色编码，关联到Role模型
   avatar?: string;
   isActive: boolean;
   lastLoginAt?: Date;
@@ -88,7 +88,7 @@ export interface CreateUserRequest {
   username: string;
   email: string;
   password: string;
-  role: UserRole;
+  role: string; // 角色编码
   avatar?: string;
 }
 
@@ -97,7 +97,7 @@ export interface UpdateUserRequest {
   username?: string;
   email?: string;
   password?: string;
-  role?: UserRole;
+  role?: string; // 角色编码
   avatar?: string;
   isActive?: boolean;
 }
@@ -108,6 +108,9 @@ export interface IPermission extends Document {
   name: string;
   code: string;
   description?: string;
+  type: 'menu' | 'action' | 'data' | 'system';
+  action: string[];
+  module?: string;
   createdAt: Date;
   updatedAt: Date;
 }

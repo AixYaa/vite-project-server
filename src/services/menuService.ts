@@ -39,8 +39,50 @@ export class MenuService {
     if (role === UserRole.SUPER_ADMIN) {
       return this.tree();
     }
-    // 非超级管理员：可按业务需要筛选。此处返回空，由前端fallback最小导航（如仅仪表盘）。
-    return [];
+    
+    // 根据角色获取用户菜单
+    const { Role } = await import('@/models/Role.js');
+    const userRole = await Role.findOne({ code: role }).populate('menus');
+    
+    if (!userRole || !userRole.menus || userRole.menus.length === 0) {
+      return [];
+    }
+    
+    // 获取用户有权限的菜单ID列表
+    const allowedMenuIds = userRole.menus.map((menu: any) => menu._id.toString());
+    
+    // 获取所有菜单并过滤
+    const allMenus = await Menu.find().populate('permissions').sort({ order: 1 }).lean();
+    
+    // 构建菜单树，只包含用户有权限的菜单
+    const idToNode: Record<string, any> = {};
+    const roots: any[] = [];
+    
+    // 先创建所有允许的菜单节点
+    allMenus.forEach((menu: any) => {
+      if (allowedMenuIds.includes(menu._id.toString())) {
+        idToNode[menu._id.toString()] = { ...menu, children: [] };
+      }
+    });
+    
+    // 构建树形结构
+    allMenus.forEach((menu: any) => {
+      if (!allowedMenuIds.includes(menu._id.toString())) return;
+      
+      if (menu.parentId) {
+        const parent = idToNode[menu.parentId.toString()];
+        if (parent) {
+          parent.children.push(idToNode[menu._id.toString()]);
+        } else {
+          // 如果父菜单不在允许列表中，但子菜单在，则作为根节点
+          roots.push(idToNode[menu._id.toString()]);
+        }
+      } else {
+        roots.push(idToNode[menu._id.toString()]);
+      }
+    });
+    
+    return roots;
   }
 
   static async create(data: Partial<IMenu>) {

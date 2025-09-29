@@ -58,6 +58,14 @@ export class UserController {
     try {
       const userData: CreateUserRequest = req.body;
 
+      // 验证角色是否存在
+      const { Role } = await import('@/models/Role.js');
+      const role = await Role.findOne({ code: userData.role });
+      if (!role) {
+        errorResponse(res, '指定的角色不存在', 400);
+        return;
+      }
+
       // 检查用户名是否已存在
       const isUsernameExists = await UserService.isUsernameExists(userData.username);
       if (isUsernameExists) {
@@ -109,6 +117,16 @@ export class UserController {
         const isEmailExists = await UserService.isEmailExists(updateData.email, id);
         if (isEmailExists) {
           errorResponse(res, '邮箱已存在', 400);
+          return;
+        }
+      }
+
+      // 如果要更新角色，验证角色是否存在
+      if (updateData.role && updateData.role !== existingUser.role) {
+        const { Role } = await import('@/models/Role.js');
+        const role = await Role.findOne({ code: updateData.role });
+        if (!role) {
+          errorResponse(res, '指定的角色不存在', 400);
           return;
         }
       }
