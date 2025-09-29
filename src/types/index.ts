@@ -102,6 +102,20 @@ export interface UpdateUserRequest {
   isActive?: boolean;
 }
 
+// 兼容没有 @types/multer 的场景，避免类型错误
+declare global {
+  namespace Express {
+    interface MulterFileFallback {
+      filename: string
+      originalname: string
+      mimetype: string
+      size: number
+      path?: string
+      buffer?: Buffer
+    }
+  }
+}
+
 // 权限相关类型
 export interface IPermission extends Document {
   _id: string;
@@ -137,6 +151,14 @@ export interface IRole extends Document {
   description?: string;
   permissions: string[];
   menus: string[];
+  apiKeys?: Array<{
+    key: string; // apikey
+    secretHash: string; // apisecret 的哈希
+    remark?: string;
+    isActive: boolean;
+    createdAt: Date;
+    lastUsedAt?: Date;
+  }>;
   isSystem: boolean;
   createdAt: Date;
   updatedAt: Date;

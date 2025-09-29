@@ -164,6 +164,38 @@ export const paginationSchema = Joi.object({
 });
 
 /**
+ * 自助更新个人资料验证模式（不允许修改角色、状态）
+ */
+export const updateProfileSchema = Joi.object({
+  username: Joi.string()
+    .min(3)
+    .max(20)
+    .optional()
+    .messages({
+      'string.min': '用户名至少3个字符',
+      'string.max': '用户名最多20个字符',
+    }),
+  email: Joi.string()
+    .email()
+    .optional()
+    .messages({
+      'string.email': '请输入有效的邮箱地址',
+    }),
+  password: Joi.string()
+    .min(6)
+    .optional()
+    .messages({
+      'string.min': '密码至少6个字符',
+    }),
+  avatar: Joi.string()
+    .optional()
+    .allow('')
+    .messages({
+      'string.base': '头像必须是字符串',
+    }),
+});
+
+/**
  * 用户ID验证模式
  */
 export const userIdSchema = Joi.object({

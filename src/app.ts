@@ -13,6 +13,7 @@ import routes from '@/routes/index.js';
 import { UserService } from '@/services/userService.js';
 import { AuthService } from '@/services/authService.js';
 import { RedisService } from '@/services/redisService.js';
+import path from 'path';
 
 class App {
   public app: express.Application;
@@ -66,6 +67,10 @@ class App {
         timestamp: new Date().toISOString(),
       });
     });
+
+    // 静态资源：上传目录（项目根目录 /uploads）
+    const uploadsPath = path.resolve(process.cwd(), 'uploads');
+    this.app.use('/uploads', express.static(uploadsPath));
   }
 
   private initializeErrorHandling(): void {
