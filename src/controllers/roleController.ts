@@ -75,6 +75,57 @@ export class RoleController {
       errorResponse(res, '删除角色失败', 500);
     }
   }
+
+  // -------- API Keys --------
+  static async listApiKeys(req: AuthenticatedRequest, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const keys = await RoleService.listApiKeys(id);
+      successResponse(res, keys, '获取API密钥列表成功');
+    } catch (error) {
+      logger.error('获取API密钥列表失败', error);
+      errorResponse(res, '获取API密钥列表失败', 500);
+    }
+  }
+
+  static async generateApiKey(req: AuthenticatedRequest, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const { remark = '' } = (req.body || {}) as any;
+      const result = await RoleService.generateApiKey(id, remark);
+      // 仅本次返回明文 secret
+      successResponse(res, result, '生成API密钥成功');
+    } catch (error) {
+      logger.error('生成API密钥失败', error);
+      errorResponse(res, '生成API密钥失败', 500);
+    }
+  }
+
+  static async toggleApiKey(req: AuthenticatedRequest, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const { key, isActive } = (req.body || {}) as any;
+      if (!key) return errorResponse(res, '缺少参数key', 400);
+      await RoleService.toggleApiKey(id, key, Boolean(isActive));
+      successResponse(res, null, '更新API密钥状态成功');
+    } catch (error) {
+      logger.error('更新API密钥状态失败', error);
+      errorResponse(res, '更新API密钥状态失败', 500);
+    }
+  }
+
+  static async revokeApiKey(req: AuthenticatedRequest, res: Response) {
+    try {
+      const id = req.params.id as string;
+      const key = req.params.key as string;
+      const ok = await RoleService.revokeApiKey(id, key);
+      if (!ok) return errorResponse(res, '密钥不存在', 404);
+      successResponse(res, null, '撤销API密钥成功');
+    } catch (error) {
+      logger.error('撤销API密钥失败', error);
+      errorResponse(res, '撤销API密钥失败', 500);
+    }
+  }
 }
 
 
