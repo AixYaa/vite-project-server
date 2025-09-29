@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import { RoleController } from '@/controllers/roleController.js';
-import { authenticate, requireAdmin, requireSuperAdmin } from '@/middleware/auth.js';
+import { authenticate, requirePermission, requireSuperAdmin } from '@/middleware/auth.js';
 
 const router = Router();
 
-router.get('/', authenticate, requireAdmin, RoleController.list);
-router.get('/:id', authenticate, requireAdmin, RoleController.getById);
-router.post('/', authenticate, requireSuperAdmin, RoleController.create);
-router.put('/:id', authenticate, requireSuperAdmin, RoleController.update);
-router.delete('/:id', authenticate, requireSuperAdmin, RoleController.remove);
+router.get('/', authenticate, requirePermission('role:view'), RoleController.list);
+router.get('/:id', authenticate, requirePermission('role:view'), RoleController.getById);
+router.post('/', authenticate, requirePermission('role:create'), RoleController.create);
+router.put('/:id', authenticate, requirePermission('role:edit'), RoleController.update);
+router.delete('/:id', authenticate, requirePermission('role:delete'), RoleController.remove);
 
 export default router;
 

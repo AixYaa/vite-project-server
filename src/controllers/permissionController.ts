@@ -75,6 +75,16 @@ export class PermissionController {
       errorResponse(res, '删除权限失败', 500);
     }
   }
+
+  static async tree(_req: AuthenticatedRequest, res: Response) {
+    try {
+      const tree = await PermissionService.tree();
+      successResponse(res, tree, '获取权限树成功');
+    } catch (error) {
+      logger.error('获取权限树失败', error);
+      errorResponse(res, '获取权限树失败', 500);
+    }
+  }
 }
 
 

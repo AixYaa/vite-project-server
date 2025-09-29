@@ -13,6 +13,29 @@ export const setRedisService = (service: RedisService): void => {
   redisService = service;
 };
 
+// 友好权限名称兜底映射（当数据库中未找到名称时使用）
+const FRIENDLY_PERMISSION_NAME: Record<string, string> = {
+  'user:view': '查看用户',
+  'user:create': '创建用户',
+  'user:edit': '编辑用户',
+  'user:delete': '删除用户',
+  'role:view': '查看角色',
+  'role:create': '创建角色',
+  'role:edit': '编辑角色',
+  'role:delete': '删除角色',
+  'menu:view': '查看菜单',
+  'menu:create': '创建菜单',
+  'menu:edit': '编辑菜单',
+  'menu:delete': '删除菜单',
+  'permission:view': '查看权限',
+  'permission:create': '创建权限',
+  'permission:edit': '编辑权限',
+  'permission:delete': '删除权限',
+  'dashboard:view': '查看仪表盘',
+  'operationLog:view': '查看操作日志',
+  'operationLog:delete': '清理操作日志',
+};
+
 /**
  * 认证中间件
  */
@@ -113,12 +136,20 @@ export const requirePermission = (permissionCode: string) => {
       }
 
       // 检查用户是否有指定权限
-      const hasPermission = userRole.permissions.some((permission: any) => 
+      const hasPermission = userRole.permissions.some((permission: any) =>
         permission.code === permissionCode
       );
 
       if (!hasPermission) {
-        unauthorizedResponse(res, `缺少权限: ${permissionCode}`);
+        try {
+          const { Permission } = await import('@/models/Permission.js');
+          const p = await Permission.findOne({ code: permissionCode }).lean();
+          const friendly = p?.name || FRIENDLY_PERMISSION_NAME[permissionCode] || permissionCode;
+          unauthorizedResponse(res, `缺少权限: ${friendly}${friendly === permissionCode ? '' : ` (${permissionCode})`}`);
+        } catch (e) {
+          const friendly = FRIENDLY_PERMISSION_NAME[permissionCode] || permissionCode;
+          unauthorizedResponse(res, `缺少权限: ${friendly}${friendly === permissionCode ? '' : ` (${permissionCode})`}`);
+        }
         return;
       }
 
