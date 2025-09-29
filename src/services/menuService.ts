@@ -52,6 +52,23 @@ export class MenuService {
   }
 
   static async remove(id: string) {
+    // 先查找要删除的菜单
+    const menu = await Menu.findById(id);
+    if (!menu) return false;
+    
+    // 递归删除所有子菜单
+    const deleteChildren = async (parentId: string) => {
+      const children = await Menu.find({ parentId });
+      for (const child of children) {
+        await deleteChildren(child._id.toString());
+        await Menu.findByIdAndDelete(child._id);
+      }
+    };
+    
+    // 删除所有子菜单
+    await deleteChildren(id);
+    
+    // 最后删除父菜单
     const res = await Menu.findByIdAndDelete(id);
     return Boolean(res);
   }
